@@ -1,0 +1,4 @@
+;; gitignore
+
+;; directories to ignore
+.idea/

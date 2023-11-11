@@ -6,24 +6,17 @@ import time
 db = sqlite3.connect("logs.db")
 
 if config.cget('initial_config'):
-    db.execute("SOURCE init.sql")
+    db.execute(".read init.sql")
     config.cset('initial_config', 'False')
 
 
 def log(*args):
     query = "INSERT INTO game_logs VALUES (" + config.cget('start_time')
-    match args[0]:
-        case 'start':
-            # add case for immediate start
-            query += ", 'START', NULL, "
-        case 'end':
-            query += ", 'END', NULL, "
-        case 'pause':
-            query += ", 'PAUSE', NULL, "
-        case 'resume':
-            query += ", 'RESUME', NULL, "
-        case 'tag':
-            query += ", 'TAG', " + args[1] + ", "
+    if args[0] in ['START', 'END', 'PAUSE', 'RESUME']:
+        # add case for immediate start
+        query += ", '" + args[0] + "', NULL, "
+    elif args[0] == 'TAG':
+        query += ", 'TAG', " + args[1] + ", "
     query += str(int(time.time())) + ");"
     db.execute(query)
 

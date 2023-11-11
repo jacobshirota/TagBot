@@ -14,27 +14,25 @@ def update():
 
 
 def cget(arg):
-    match arg:
-        case 'debug_mode' | 'initial_config':
-            return debug_settings.getboolean(arg)
-        case 'active':
-            return game_settings.getboolean(arg)
-        case 'start_time' | 'end_time' | 'cooldown':
-            return game_settings.getint(arg)
-        case 'paused':
-            return pause_settings.getboolean(arg)
-        case 'resume_time':
-            return pause_settings.getint(arg)
+    if arg in ['debug_mode', 'initial_config']:
+        return debug_settings.getboolean(arg)
+    elif arg == 'active':
+        return game_settings.getboolean(arg)
+    elif arg in ['start_time', 'end_time', 'cooldown']:
+        return game_settings.getint(arg)
+    elif arg == 'paused':
+        return pause_settings.getboolean(arg)
+    elif arg == 'resume_time':
+        return pause_settings.getint(arg)
 
 
 def cset(*args):
-    match args[0]:
-        case 'debug_mode' | 'initial_config':
-            debug_settings[args[0]] = str(args[1])
-        case 'active' | 'start_time' | 'end_time' | 'cooldown':
-            game_settings[args[0]] = str(args[1])
-        case 'paused' | 'resume_time':
-            pause_settings[args[0]] = str(args[1])
+    if args[0] in  ['debug_mode', 'initial_config']:
+        debug_settings[args[0]] = str(args[1])
+    elif args[0] in ['active', 'start_time', 'end_time', 'cooldown']:
+        game_settings[args[0]] = str(args[1])
+    elif args[0] in ['paused', 'resume_time']:
+        pause_settings[args[0]] = str(args[1])
     update()
 
 

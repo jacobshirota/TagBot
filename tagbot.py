@@ -203,8 +203,9 @@ async def leaderboard_reset(ctx):
 @bot.command()
 @commands.is_owner()
 async def config_dump(ctx):
+    cdump = "config.ini\n"
     with open("config.ini", "r") as cfile:
-        cdump = cfile.readline()
+        cdump += cfile.readline()
     cdump = cdump[:-20]
     await ctx.send(cdump)
 

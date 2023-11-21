@@ -223,5 +223,6 @@ async def export(ctx):
 async def globally_block_dms(ctx):
     return ctx.guild is not None
 
-
-bot.run('INSERT-YOUR-TOKEN-HERE')
+bot_token = config.cget('bot_token')
+if bot_token != 'NULL':
+    bot.run(bot_token)

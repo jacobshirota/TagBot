@@ -7,6 +7,7 @@ debug_settings = configP['debug_settings']
 game_settings = configP['game_settings']
 pause_settings = configP['pause_settings']
 guild_settings = configP['guild_settings']
+bot_settings = configP['bot_settings']
 
 
 def update():
@@ -30,6 +31,8 @@ def cget(arg):
             return None
         else:
             return guild_settings.getint(arg)
+    elif arg == 'bot_token':
+        return bot_settings[arg]
 
 
 def cset(*args):

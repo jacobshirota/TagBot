@@ -120,7 +120,7 @@ async def playing_error(ctx, error):
 @game_not_paused()
 async def start(ctx):
     config.cset('start_time', logger.log('START'))
-    await ctx.reply("@Playing\nGame has started!")
+    await ctx.send("@Playing\nGame has started!")
 
 
 @start.error
@@ -133,7 +133,7 @@ async def start_error(ctx, error):
 async def end(ctx):
     config.cset('end_time', logger.log('END'))
     # logger.user_set_all('Playing', 'False')
-    await ctx.reply("@Playing\nGame has ended!")
+    await ctx.send("@Playing\nGame has ended!")
 
 
 @end.error
@@ -169,7 +169,7 @@ async def tag(ctx, *, tagged: discord.Member):
     await tagged.add_roles(get_role('it_role'))
     await tagged.remove_roles(get_role('not_it_role'))
     logger.user_set(tagged, 'It')
-    await ctx.reply("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
+    await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
 
 
 @tag.error
@@ -183,7 +183,7 @@ async def tag_error(ctx, error):
 @bot.command()
 async def leaderboard(ctx):
     reply = leaderboard.to_string(logger.get_leaderboard())
-    await ctx.reply(reply)
+    await ctx.send(reply)
 
 
 # Owner and debug commands
@@ -206,7 +206,7 @@ async def config_dump(ctx):
     with open("config.ini", "r") as cfile:
         cdump = cfile.readline()
     cdump = cdump[:-20]
-    ctx.send(cdump)
+    await ctx.send(cdump)
 
 @bot.command()
 @commands.is_owner()

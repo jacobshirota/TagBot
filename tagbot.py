@@ -202,6 +202,14 @@ async def leaderboard_reset(ctx):
 
 @bot.command()
 @commands.is_owner()
+async def config_dump(ctx):
+    with open("config.ini", "r") as cfile:
+        cdump = cfile.readline()
+    cdump = cdump[:-20]
+    ctx.send(cdump)
+
+@bot.command()
+@commands.is_owner()
 async def config_reset(ctx):
     return
 
@@ -226,3 +234,5 @@ async def globally_block_dms(ctx):
 bot_token = config.cget('bot_token')
 if bot_token != 'NULL':
     bot.run(bot_token)
+else:
+    print("BOT TOKEN IS MISSING")

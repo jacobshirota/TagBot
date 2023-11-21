@@ -6,7 +6,11 @@ import time
 db = sqlite3.connect("logs.db")
 
 if config.cget('initial_config'):
-    db.execute(".read init.sql")
+    with open("init.sql", "r") as sql_file:
+        sql_script = sql_file.read()
+    cursor = db.cursor()
+    cursor.executescript(sql_script)
+    db.commit()
     config.cset('initial_config', 'False')
 
 
@@ -20,11 +24,13 @@ def log(*args):
     elif args[0] == 'TAG':
         query += ", 'TAG', " + args[1] + ");"
     db.execute(query)
+    db.commit()
     return timestamp
 
 def get_last_log(event):
     query = "SELECT MAX(Timestamp) FROM game_logs WHERE Event = " + event + ";"
     timestamp = db.execute(query)
+    db.commit()
     return timestamp.fetchone()
 
 
@@ -37,6 +43,7 @@ def add_user(user):
     db.execute(query)
     query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
     db.execute(query)
+    db.commit()
     return True
 
 # used to set Playing, It
@@ -48,6 +55,7 @@ def user_set(user, row):
     query += 'True' if check.fetchone()[0] == 'False' else 'False'
     query += "WHERE UserID=" + str(user.id) + ");"
     db.execute(query)
+    db.commit()
     return True if check.fetchone()[0] == 'False' else False
 
 def user_check(user, row):
@@ -58,6 +66,7 @@ def user_check(user, row):
 
 def user_set_all(row, val):
     db.execute("UPDATE users SET " + row + "=" + val)
+    db.commit()
 
 
 # leaderboard functions

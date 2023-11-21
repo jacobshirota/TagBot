@@ -13,13 +13,19 @@ if config.cget('initial_config'):
 # game_logs functions
 
 def log(*args):
-    query = "INSERT INTO game_logs VALUES (" + str(int(time.time())) + ", " + config.cget('start_time')
+    timestamp = int(time.time())
+    query = "INSERT INTO game_logs VALUES (" + str(timestamp) + ", " + config.cget('start_time')
     if args[0] in ['START', 'END', 'PAUSE', 'RESUME']:
         query += ", '" + args[0] + "', NULL);"
     elif args[0] == 'TAG':
         query += ", 'TAG', " + args[1] + ");"
     db.execute(query)
-    return True
+    return timestamp
+
+def get_last_log(event):
+    query = "SELECT MAX(Timestamp) FROM game_logs WHERE Event = " + event + ";"
+    timestamp = db.execute(query)
+    return timestamp.fetchone()
 
 
 # user functions
@@ -35,7 +41,7 @@ def add_user(user):
 
 # used to set Playing, It
 def user_set(user, row):
-    check = db.execute("SELECT" + row + " FROM users WHERE UserID=" + str(user.id) + ");")
+    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ");")
     if check.fetchone() is None:
         add_user(user)
     query = "UPDATE users SET " + row + "="
@@ -45,13 +51,13 @@ def user_set(user, row):
     return True if check.fetchone()[0] == 'False' else False
 
 def user_check(user, row):
-    check = db.execute("SELECT" + row + " FROM users WHERE UserID=" + str(user.id) + ");")
+    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ");")
     if check.fetchone() is None:
         return False
     return True if check.fetchone()[0] == 'True' else False
 
 def user_set_all(row, val):
-    db.execute("UPDATE users SET" + row + "=" + val)
+    db.execute("UPDATE users SET " + row + "=" + val)
 
 
 # leaderboard functions

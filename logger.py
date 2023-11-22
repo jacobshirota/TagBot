@@ -36,7 +36,8 @@ def get_last_log(event):
 
 # user functions
 def add_user(user):
-    check = db.execute("SELECT * FROM users WHERE UserID=" + str(user.id) + ";")
+    # note to self: this doesn't need sanitizing because discord user ID format is fixed
+    check = db.execute("SELECT UserID FROM users WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is not None:
         return False
     query = "INSERT INTO users VALUES (" + str(user.id) + ", " + user.mention + ", " + "False, False);"
@@ -48,10 +49,8 @@ def add_user(user):
 
 # used to set Playing, It
 def user_set(user, row):
-    # note to self: this doesn't need sanitizing because discord user ID format is fixed
+    add_user(user)
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
-    if check.fetchone() is None:
-        add_user(user)
     query = "UPDATE users SET " + row + "="
     query += 'True' if check.fetchone()[0] == 'False' else 'False'
     query += "WHERE UserID=" + str(user.id) + ";"

@@ -113,16 +113,6 @@ async def playing(ctx):
     await ctx.reply(reply)
 
 
-@playing.error
-async def playing_error(ctx, error):
-    if isinstance(error, RolesFailure):
-        await ctx.reply(error)
-    elif isinstance(error, commands.CheckFailure):
-        await ctx.reply("Oops, you can't do that while the game is active.")
-    else:
-        await ctx.reply("Oops, something went wrong.")
-
-
 # Tag commands
 
 @bot.command()
@@ -141,15 +131,6 @@ async def end(ctx):
     config.cset('end_time', logger.log('END'))
     # logger.user_set_all('Playing', 'False')
     await ctx.send("@Playing\nGame has ended!")
-
-
-@start.error
-@end.error
-async def start_end_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Oops, you can't do that right now!")
-        return
-    await ctx.reply("Oops, something went wrong.")
 
 
 @bot.command()
@@ -183,9 +164,12 @@ async def tag(ctx, *, tagged: discord.Member):
     await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
 
 
+@playing.error
+@start.error
+@end.error
 @tag.error
-async def tag_error(ctx, error):
-    if isinstance(error, RolesFailure):
+async def game_error(ctx, error):
+    if isinstance(error, RolesFailure) or isinstance(error, BadNickname):
         await ctx.reply(error)
     elif isinstance(error, commands.CheckFailure):
         await ctx.reply("Oops, you can't do that right now!")
@@ -275,16 +259,28 @@ async def toggle_debug(ctx):
 @config_reset.error
 @export.error
 async def debug_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
+    if isinstance(error, BadNickname):
+        await ctx.reply(error)
+    elif isinstance(error, commands.CheckFailure):
         await ctx.reply("Oops, you can't do that right now! Is debug mode enabled?")
-        return
-    await ctx.reply("Oops, something went wrong.")
+    else:
+        await ctx.reply("Oops, something went wrong.")
 
 
 # Global checks
 @bot.check
 async def globally_block_dms(ctx):
     return ctx.guild is not None
+
+
+class BadNickname(commands.CheckFailure):
+    pass
+
+@bot.check
+async def clean_nickname(ctx):
+    if not ctx.author.mention[1:].isalnum():
+        raise BadNickname("Oops, please change your nickname to include only letters and numbers.")
+    return True
 
 
 bot_token = config.cget('bot_token')

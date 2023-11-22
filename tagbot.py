@@ -121,7 +121,7 @@ async def playing(ctx):
 async def start(ctx):
     config.cset('active', True)
     config.cset('start_time', logger.log('START'))
-    await ctx.send("@Playing\nGame has started!")
+    await ctx.send(get_role('playing_role').mention + "\nGame has started!")
 
 
 @bot.command()
@@ -130,7 +130,7 @@ async def end(ctx):
     config.cset('active', False)
     config.cset('end_time', logger.log('END'))
     # logger.user_set_all('Playing', 'False')
-    await ctx.send("@Playing\nGame has ended!")
+    await ctx.send(get_role('playing_role').mention + "\nGame has ended!")
 
 
 @bot.command()

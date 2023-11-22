@@ -126,6 +126,7 @@ async def playing_error(ctx, error):
 @game_not_active()
 @game_not_paused()
 async def start(ctx):
+    config.cset('active', True)
     config.cset('start_time', logger.log('START'))
     await ctx.send("@Playing\nGame has started!")
 
@@ -133,6 +134,7 @@ async def start(ctx):
 @bot.command()
 @game_active()
 async def end(ctx):
+    config.cset('active', False)
     config.cset('end_time', logger.log('END'))
     # logger.user_set_all('Playing', 'False')
     await ctx.send("@Playing\nGame has ended!")

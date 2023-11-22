@@ -128,11 +128,6 @@ async def start(ctx):
     await ctx.send("@Playing\nGame has started!")
 
 
-@start.error
-async def start_error(ctx, error):
-    await ctx.reply("Oops, you can't do that right now!")
-
-
 @bot.command()
 @game_active()
 async def end(ctx):
@@ -141,9 +136,13 @@ async def end(ctx):
     await ctx.send("@Playing\nGame has ended!")
 
 
+@start.error
 @end.error
-async def end_error(ctx, error):
-    await ctx.reply("Oops, you can't do that right now!")
+async def start_end_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.reply("Oops, you can't do that right now!")
+        return
+    await ctx.reply("Oops, something went wrong.")
 
 
 @bot.command()
@@ -181,8 +180,10 @@ async def tag(ctx, *, tagged: discord.Member):
 async def tag_error(ctx, error):
     if isinstance(error, RolesFailure):
         await ctx.reply(error)
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.reply("Oops, you can't do that right now!")
     else:
-        ctx.reply("Oops, you can't do that right now!")
+        await ctx.reply("Oops, something went wrong.")
 
 
 @bot.command()

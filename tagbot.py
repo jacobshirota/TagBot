@@ -79,18 +79,21 @@ def roles_config():
         it_role = get_role('it_role') is not None
         not_it_role = get_role('not_it_role') is not None
         if not playing_role and it_role and not_it_role:
-            raise RolesFailure('`CONFIGURATION ERROR: You are missing a guild and/or role id.`')
+            raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
         return True
     return commands.check(predicate)
 
 
 # Role manager
-def get_role(role):
+def get_role(role_name):
     if config.cget('guild_id') is None:
-        return None
-    if config.cget(role) is None:
-        return None
-    return bot.get_guild(config.cget('guild_id')).get_role(config.cget(role))
+        raise RolesFailure('`CONFIG ERROR: You are missing a guild ID.`')
+    role_id = config.cget(role_name)
+    if role_id is None:
+        raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
+    guild = bot.get_guild(config.cget('guild_id'))
+    role = discord.utils.get(guild.roles, id=role_id)
+    return role
 
 
 # Config commands

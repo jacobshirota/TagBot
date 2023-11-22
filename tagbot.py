@@ -65,6 +65,11 @@ def is_it():
     return commands.check(predicate)
 
 
+def is_debug():
+    async def predicate(ctx):
+        return config.cget('debug_mode')
+    return commands.check(predicate)
+
 class RolesFailure(commands.CheckFailure):
     pass
 
@@ -109,8 +114,8 @@ async def playing(ctx):
 async def playing_error(ctx, error):
     if isinstance(error, RolesFailure):
         await ctx.reply(error)
-    else:
-        await ctx.reply("Oops, you can't do that while the game is active.")
+        return
+    await ctx.reply("Oops, you can't do that while the game is active.")
 
 
 # Tag commands
@@ -190,47 +195,72 @@ async def leaderboard(ctx):
 
 @bot.command()
 @commands.is_owner()
+@is_debug()
 async def server_reset(ctx):
     return
 
 
 @bot.command()
 @commands.is_owner()
+@is_debug()
 async def leaderboard_reset(ctx):
     return
 
 
 @bot.command()
 @commands.is_owner()
+@is_debug()
 async def config_dump(ctx):
     cdump = "config.ini\n"
     with open("config.ini", "r") as cfile:
-        cdump += cfile.readline()
-    cdump = cdump[:-20]
-    await ctx.send(cdump)
+        cdump += cfile.read()
+    await ctx.send('`' + cdump[:-73] + '`')
+
 
 @bot.command()
 @commands.is_owner()
+@is_debug()
 async def config_reset(ctx):
-    return
+    config.reset()
+    await ctx.send("`'config.ini' reset.\nWARNING: this command does not reset 'initial_config', 'guild_settings', "
+                   "or 'bot_token'.`")
+
+
+@bot.command()
+@commands.is_owner()
+@is_debug()
+async def export(ctx):
+    ctx.send(file='logs.db')
 
 
 @bot.command()
 @commands.is_owner()
 async def toggle_debug(ctx):
-    return
+    if config.cget('debug_mode'):
+        toggle = False
+    else:
+        toggle = True
+    config.cset('debug_mode', toggle)
+    await ctx.sent('`Debug mode set to ' + str(toggle) + '`')
 
 
-@bot.command()
-@commands.is_owner()
-async def export(ctx):
-    return
+@server_reset.error
+@leaderboard_reset.error
+@config_dump.error
+@config_reset.error
+@export.error
+async def debug_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.reply("Oops, you can't do that right now! Is debug mode enabled?")
+        return
+    await ctx.reply("Oops, something went wrong.")
 
 
 # Global checks
 @bot.check
 async def globally_block_dms(ctx):
     return ctx.guild is not None
+
 
 bot_token = config.cget('bot_token')
 if bot_token != 'NULL':

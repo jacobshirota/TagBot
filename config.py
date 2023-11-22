@@ -45,3 +45,12 @@ def cset(*args):
     update()
 
 
+def reset():
+    debug_settings['debug_mode'] = 'False'
+    game_settings['active'] = 'False'
+    game_settings['start_time'] = '0000000000'
+    game_settings['end_time'] = '9999999999'
+    game_settings['cooldown'] = '600'
+    pause_settings['paused'] = 'False'
+    pause_settings['resume_time'] = '0000000000'
+    update()

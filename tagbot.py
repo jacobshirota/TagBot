@@ -114,8 +114,10 @@ async def playing(ctx):
 async def playing_error(ctx, error):
     if isinstance(error, RolesFailure):
         await ctx.reply(error)
-        return
-    await ctx.reply("Oops, you can't do that while the game is active.")
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.reply("Oops, you can't do that while the game is active.")
+    else:
+        await ctx.reply("Oops, something went wrong.")
 
 
 # Tag commands
@@ -215,7 +217,7 @@ async def config_dump(ctx):
     cdump = "config.ini\n"
     with open("config.ini", "r") as cfile:
         cdump += cfile.read()
-    await ctx.send('`' + cdump[:-73] + '`')
+    await ctx.send('```' + cdump[:-73] + '```')
 
 
 @bot.command()
@@ -223,8 +225,8 @@ async def config_dump(ctx):
 @is_debug()
 async def config_reset(ctx):
     config.reset()
-    await ctx.send("`'config.ini' reset.\nWARNING: this command does not reset 'initial_config', 'guild_settings', "
-                   "or 'bot_token'.`")
+    await ctx.send("```'config.ini' reset.\nWARNING: this command does not reset 'initial_config', "
+                   "'guild_settings', or 'bot_token'.```")
 
 
 @bot.command()
@@ -259,7 +261,7 @@ async def toggle_debug(ctx):
     else:
         toggle = True
     config.cset('debug_mode', toggle)
-    await ctx.sent('`Debug mode set to ' + str(toggle) + '`')
+    await ctx.send('`Debug mode set to ' + str(toggle) + '`')
 
 
 @server_reset.error

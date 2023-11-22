@@ -57,12 +57,15 @@ def add_user(user):
 def user_set(user, row):
     add_user(user)
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
+    old_val = check.fetchone()
+    if old_val is None:
+        raise TypeError("Query returned None object")
     query = "UPDATE users SET " + row + "="
-    query += "'True'" if check.fetchone()[0] == "'False'" else "'False'"
+    query += "'True'" if old_val[0] == "False" else "'False'"
     query += "WHERE UserID=" + str(user.id) + ";"
     db.execute(query)
     db.commit()
-    return True if check.fetchone()[0] == "'False'" else False
+    return True if old_val[0] == "False" else False
 
 def user_check(user, row):
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")

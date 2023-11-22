@@ -42,6 +42,8 @@ def cset(*args):
         game_settings[args[0]] = str(args[1])
     elif args[0] in ['paused', 'resume_time']:
         pause_settings[args[0]] = str(args[1])
+    elif args[0] in ['guild_id', 'playing_role', 'it_role', 'not_it_role']:
+        guild_settings[args[0]] = str(args[1])
     update()
 
 

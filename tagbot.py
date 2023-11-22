@@ -235,6 +235,23 @@ async def export(ctx):
 
 @bot.command()
 @commands.is_owner()
+@is_debug()
+async def role(ctx, *, added_role:discord.Role):
+    if added_role.name == 'Playing':
+        config.cset('playing_role', added_role.id)
+        await ctx.send('`Successfully added playing_role id.`')
+    elif added_role.name == 'It':
+        config.cset('it_role', added_role.id)
+        await ctx.send('`Successfully added it_role id.`')
+    elif added_role.name == 'Not It':
+        config.cset('not_it_role', added_role.id)
+        await ctx.send('`Successfully added not_it_role id.`')
+    else:
+        await ctx.send('`Unrecognized role. Try manually adding role id.`')
+
+
+@bot.command()
+@commands.is_owner()
 async def toggle_debug(ctx):
     if config.cget('debug_mode'):
         toggle = False

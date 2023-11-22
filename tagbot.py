@@ -175,6 +175,8 @@ async def game_error(ctx, error):
         await ctx.reply("Oops, you can't do that right now!")
     else:
         await ctx.reply("Oops, something went wrong.")
+        if config.cget('debug_mode'):
+            await ctx.send(error)
 
 
 @bot.command()
@@ -261,8 +263,10 @@ async def toggle_debug(ctx):
 async def debug_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         await ctx.reply("Oops, you can't do that right now! Is debug mode enabled?")
-        return
-    await ctx.reply("Oops, something went wrong.")
+    else:
+        await ctx.reply("Oops, something went wrong.")
+        if config.cget('debug_mode'):
+            await ctx.send(error)
 
 
 # Global checks

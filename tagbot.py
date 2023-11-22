@@ -113,16 +113,6 @@ async def playing(ctx):
     await ctx.reply(reply)
 
 
-@playing.error
-async def playing_error(ctx, error):
-    if isinstance(error, RolesFailure):
-        await ctx.reply(error)
-    elif isinstance(error, commands.CheckFailure):
-        await ctx.reply("Oops, you can't do that while the game is active.")
-    else:
-        await ctx.reply("Oops, something went wrong.")
-
-
 # Tag commands
 
 @bot.command()
@@ -141,15 +131,6 @@ async def end(ctx):
     config.cset('end_time', logger.log('END'))
     # logger.user_set_all('Playing', 'False')
     await ctx.send("@Playing\nGame has ended!")
-
-
-@start.error
-@end.error
-async def start_end_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Oops, you can't do that right now!")
-        return
-    await ctx.reply("Oops, something went wrong.")
 
 
 @bot.command()
@@ -183,8 +164,11 @@ async def tag(ctx, *, tagged: discord.Member):
     await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
 
 
+@playing.error
+@start.error
+@end.error
 @tag.error
-async def tag_error(ctx, error):
+async def game_error(ctx, error):
     if isinstance(error, RolesFailure):
         await ctx.reply(error)
     elif isinstance(error, commands.CheckFailure):

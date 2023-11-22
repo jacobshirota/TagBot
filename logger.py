@@ -36,10 +36,10 @@ def get_last_log(event):
 
 # user functions
 def add_user(user):
-    check = db.execute("SELECT * FROM users WHERE UserID=" + str(user.id) + ");")
+    check = db.execute("SELECT * FROM users WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is not None:
         return False
-    query = "INSERT INTO users VALUES (" +  str(user.id) + ", " + user.mention + ", " + "False, False);"
+    query = "INSERT INTO users VALUES (" + str(user.id) + ", " + user.mention + ", " + "False, False);"
     db.execute(query)
     query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
     db.execute(query)
@@ -54,13 +54,13 @@ def user_set(user, row):
         add_user(user)
     query = "UPDATE users SET " + row + "="
     query += 'True' if check.fetchone()[0] == 'False' else 'False'
-    query += "WHERE UserID=" + str(user.id) + ");"
+    query += "WHERE UserID=" + str(user.id) + ";"
     db.execute(query)
     db.commit()
     return True if check.fetchone()[0] == 'False' else False
 
 def user_check(user, row):
-    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ");")
+    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is None:
         return False
     return True if check.fetchone()[0] == 'True' else False
@@ -74,4 +74,3 @@ def user_set_all(row, val):
 def get_leaderboard():
     check = db.execute("SELECT Mention, TotalTime FROM user, leaderboard);")
     return check.fetchall()
-

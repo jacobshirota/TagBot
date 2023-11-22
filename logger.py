@@ -18,7 +18,7 @@ if config.cget('initial_config'):
 
 def log(*args):
     timestamp = int(time.time())
-    query = "INSERT INTO game_logs VALUES (" + str(timestamp) + ", " + config.cget('start_time')
+    query = "INSERT INTO game_logs VALUES (" + str(timestamp) + ", " + str(config.cget('start_time'))
     if args[0] in ['START', 'END', 'PAUSE', 'RESUME']:
         query += ", '" + args[0] + "', NULL);"
     elif args[0] == 'TAG':

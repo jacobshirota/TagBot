@@ -39,7 +39,7 @@ def add_user(user):
     check = db.execute("SELECT * FROM users WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is not None:
         return False
-    query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "False, False);"
+    query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "'False', 'False');"
     db.execute(query)
     query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
     db.execute(query)
@@ -53,11 +53,11 @@ def user_set(user, row):
     if check.fetchone() is None:
         add_user(user)
     query = "UPDATE users SET " + row + "="
-    query += 'True' if check.fetchone()[0] == 'False' else 'False'
+    query += "'True'" if check.fetchone()[0] == "'False'" else "'False'"
     query += "WHERE UserID=" + str(user.id) + ";"
     db.execute(query)
     db.commit()
-    return True if check.fetchone()[0] == 'False' else False
+    return True if check.fetchone()[0] == "'False'" else False
 
 def user_check(user, row):
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")

@@ -88,12 +88,39 @@ def roles_config():
 def get_role(role_name):
     if config.cget('guild_id') is None:
         raise RolesFailure('`CONFIG ERROR: You are missing a guild ID.`')
+    guild = bot.get_guild(config.cget('guild_id'))
+    if guild is None:
+        raise RolesFailure('`CONFIG ERROR: Guild ID is incorrect`')
     role_id = config.cget(role_name)
     if role_id is None:
         raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
-    guild = bot.get_guild(config.cget('guild_id'))
     role = discord.utils.get(guild.roles, id=role_id)
     return role
+
+
+def start_roles(it):
+    playing_role = get_role('playing_role')
+    not_it_role = get_role('not_it_role')
+    it_role = get_role('it_role')
+    guild = bot.get_guild(config.cget('guild_id'))
+    for m in guild.members:
+        if playing_role not in m.roles or m == it:
+            continue
+        m.add_roles(not_it_role)
+    it.add_roles(it_role)
+    logger.user_set(it, 'It')
+
+
+def end_roles():
+    not_it_role = get_role('not_it_role')
+    it_role = get_role('it_role')
+    guild = bot.get_guild(config.cget('guild_id'))
+    for m in guild.members:
+        if not_it_role in m.roles:
+            m.remove_roles(not_it_role)
+        if it_role in m.roles:
+            m.remove_roles(it_role)
+    logger.user_set_all('It', "'False'")
 
 
 # Config commands
@@ -121,6 +148,7 @@ async def playing(ctx):
 async def start(ctx):
     config.cset('active', True)
     config.cset('start_time', logger.log('START'))
+    start_roles(ctx.author)
     await ctx.send(get_role('playing_role').mention + "\nGame has started!")
 
 
@@ -129,6 +157,7 @@ async def start(ctx):
 async def end(ctx):
     config.cset('active', False)
     config.cset('end_time', logger.log('END'))
+    end_roles()
     # logger.user_set_all('Playing', 'False')
     await ctx.send(get_role('playing_role').mention + "\nGame has ended!")
 
@@ -230,7 +259,7 @@ async def export(ctx):
 @bot.command()
 @commands.is_owner()
 @is_debug()
-async def role(ctx, *, added_role:discord.Role):
+async def role(ctx, *, added_role: discord.Role):
     if added_role.name == 'Playing':
         config.cset('playing_role', added_role.id)
         await ctx.send('`Successfully added playing_role id.`')

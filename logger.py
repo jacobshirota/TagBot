@@ -82,3 +82,9 @@ def user_set_all(row, val):
 def get_leaderboard():
     check = db.execute("SELECT Mention, TotalTime FROM user, leaderboard;")
     return check.fetchall()
+
+
+# debug functions
+def user_reset():
+    db.execute("DELETE FROM users;")
+    db.commit()

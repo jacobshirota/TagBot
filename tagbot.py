@@ -65,10 +65,16 @@ def is_it():
     return commands.check(predicate)
 
 
+class DebugModeError(commands.CheckFailure):
+    pass
+
 def is_debug():
     async def predicate(ctx):
-        return config.cget('debug_mode')
+        if not config.cget('debug_mode'):
+            raise DebugModeError("Oops, you can't do that without debug mode.")
+        return True
     return commands.check(predicate)
+
 
 class RolesFailure(commands.CheckFailure):
     pass
@@ -252,6 +258,22 @@ async def config_reset(ctx):
 @bot.command()
 @commands.is_owner()
 @is_debug()
+@game_not_active()
+@game_not_paused()
+async def user_reset(ctx):
+    logger.user_reset()
+    end_roles()
+    playing_role = get_role('playing_role')
+    guild = bot.get_guild(config.cget('guild_id'))
+    for m in guild.members:
+        if playing_role in m.roles:
+            await m.remove_roles(playing_role)
+    await ctx.send("`Users reset.`")
+
+
+@bot.command()
+@commands.is_owner()
+@is_debug()
 async def export(ctx):
     ctx.send(file='logs.db')
 
@@ -288,10 +310,13 @@ async def toggle_debug(ctx):
 @leaderboard_reset.error
 @config_dump.error
 @config_reset.error
+@user_reset.error
 @export.error
 async def debug_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Oops, you can't do that right now! Is debug mode enabled?")
+    if isinstance(error, DebugModeError):
+        await ctx.reply(error)
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.reply("Oops, you can't do that right now!")
     else:
         await ctx.reply("Oops, something went wrong.")
         if config.cget('debug_mode'):

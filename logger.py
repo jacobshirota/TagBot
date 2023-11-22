@@ -48,7 +48,8 @@ def add_user(user):
 
 # used to set Playing, It
 def user_set(user, row):
-    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ");")
+    # note to self: this doesn't need sanitizing because discord user ID format is fixed
+    check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is None:
         add_user(user)
     query = "UPDATE users SET " + row + "="

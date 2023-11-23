@@ -31,6 +31,8 @@ def game_not_paused():
 def game_not_cooldown():
     async def predicate(ctx):
         last_tag = logger.get_last_log('Tag')
+        if last_tag is None:
+            return False
         is_cooldown = (int(time.time()) - last_tag) < config.cget('cooldown')
         return not is_cooldown
     return commands.check(predicate)

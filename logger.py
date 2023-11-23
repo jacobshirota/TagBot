@@ -38,7 +38,9 @@ def get_last_log(event):
     query = "SELECT MAX(Timestamp) FROM game_logs WHERE Event = " + event + ";"
     timestamp = db.execute(query)
     db.commit()
-    return timestamp.fetchone()
+    if timestamp.fetchone() is None:
+        return None
+    return int(timestamp.fetchone()[0])
 
 
 # user functions

@@ -27,16 +27,16 @@ async def on_ready():
 @bot.command(name='help')
 async def _help(ctx, cmd=None):
     if cmd is None:
-        reply = help.show_commands()
+        reply = "```" + help.show_commands()
         if config.cget('debug_mode'):
             reply += help.show_debug()
-        await ctx.send(reply[:-1])
+        await ctx.send(reply[:-1] + "```")
     else:
-        reply = help.get(cmd)
+        reply = '`' + help.get(cmd)
         if reply is None:
             await ctx.send("Oops, I didn't recognize that command.")
             return
-        await ctx.send(reply[:-1])
+        await ctx.send(reply[:-1] + "`")
 
 
 # Config commands

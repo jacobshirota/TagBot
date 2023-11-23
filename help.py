@@ -1,5 +1,9 @@
 import configparser
 
+"""
+this can probably be improved upon significantly by using a pre-built library
+"""
+
 helpfile = configparser.ConfigParser()
 helpfile.read("help.ini")
 

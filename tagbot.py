@@ -127,12 +127,7 @@ async def resume(ctx):
 @checks.roles_config()
 async def tag(ctx, *, tagged: discord.Member):
     logger.log('TAG', tagged)
-    await ctx.author.add_roles(roles.get_role('not_it_role'))
-    await ctx.author.remove_roles(roles.get_role('it_role'))
-    logger.user_set(ctx.author, 'It')
-    await tagged.add_roles(roles.get_role('it_role'))
-    await tagged.remove_roles(roles.get_role('not_it_role'))
-    logger.user_set(tagged, 'It')
+    await roles.tag(ctx.author, tagged)
     await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
 
 

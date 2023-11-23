@@ -56,7 +56,7 @@ async def info(ctx):
         else:
             reply += "in " + str(int(time.time())-last_tag) + " minutes."
     else:
-        reply += "not active."
+        reply += "not active.\n"
         if config.cget('paused'):
             last_pause = logger.get_last_log('PAUSE')
             if last_pause is None:

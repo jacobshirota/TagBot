@@ -65,7 +65,7 @@ async def info(ctx):
             reply += "Game has been paused since " + time.asctime(time.localtime(last_pause))
         else:
             reply += "Last game ended on " + time.asctime(time.localtime(config.cget('end_time'))) + "."
-    ctx.send(reply)
+    await ctx.send(reply)
 
 
 @bot.command()

@@ -44,21 +44,22 @@ def get_last_log(event):
 
 
 # user functions
-def add_user(user):
-    check = db.execute("SELECT UserID FROM users WHERE UserID=" + str(user.id) + ";")
+
+def add_user(user_id):
+    check = db.execute("SELECT UserID FROM users WHERE UserID=" + user_id + ";")
     if check.fetchone() is None:
-        query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "'False', 'False');"
+        query = "INSERT INTO users VALUES (" + user_id + ", '<@" + user_id + ">', " + "'False', 'False');"
         db.execute(query)
-    check = db.execute("SELECT UserID FROM leaderboard WHERE UserID=" + str(user.id) + ";")
+    check = db.execute("SELECT UserID FROM leaderboard WHERE UserID=" + user_id + ";")
     if check.fetchone() is None:
-        query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
+        query = "INSERT INTO leaderboard VALUES(" + user_id + ", 0);"
         db.execute(query)
     db.commit()
 
 
 # used to set Playing, It
 def user_set(user, row):
-    add_user(user)
+    add_user(str(user.id))
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
     old_val = check.fetchone()
     if old_val is None:
@@ -72,8 +73,8 @@ def user_set(user, row):
 
 def user_check(user, row):
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
-    if check.fetchone() is None:
-        return False
+    if check.fetchone() is None or check.fetchone()[0] is None:
+        raise TypeError("Query returned None object")
     return True if check.fetchone()[0] == "'True'" else False
 
 def user_set_all(row, val):

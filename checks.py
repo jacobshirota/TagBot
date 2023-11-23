@@ -3,7 +3,6 @@ import config
 import logger
 import time
 
-
 def game_active():
     async def predicate(ctx):
         return config.cget('active')
@@ -65,6 +64,7 @@ class RolesFailure(commands.CheckFailure):
 
 def roles_config():
     async def predicate(ctx):
+        from roles import get_role
         playing_role = get_role('playing_role') is not None
         it_role = get_role('it_role') is not None
         not_it_role = get_role('not_it_role') is not None

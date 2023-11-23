@@ -1,6 +1,5 @@
 import discord
 import config
-import checks
 import logger
 
 

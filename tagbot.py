@@ -42,6 +42,11 @@ async def _help(ctx, cmd=None):
 # Config commands
 
 @bot.command()
+async def info(ctx):
+    return
+
+
+@bot.command()
 @checks.game_not_active()
 @checks.game_not_paused()
 @checks.roles_config()
@@ -162,6 +167,8 @@ async def config_dump(ctx):
 @bot.command()
 @commands.is_owner()
 @checks.is_debug()
+@checks.game_not_active()
+@checks.game_not_paused()
 async def config_reset(ctx):
     config.reset()
     await ctx.send("```'config.ini' reset.\nWARNING: this command does not reset 'initial_config', "

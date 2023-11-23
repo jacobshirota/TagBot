@@ -124,8 +124,11 @@ async def server_reset(ctx):
 @bot.command()
 @commands.is_owner()
 @checks.is_debug()
+@checks.game_not_active()
+@checks.game_not_paused()
 async def leaderboard_reset(ctx):
-    return
+    logger.reset('leaderboard')
+    await ctx.send('`Leaderboard reset.`')
 
 
 @bot.command()
@@ -153,7 +156,7 @@ async def config_reset(ctx):
 @checks.game_not_active()
 @checks.game_not_paused()
 async def user_reset(ctx):
-    logger.user_reset()
+    logger.reset('users')
     await roles.end_roles()
     playing_role = roles.get_role('playing_role')
     guild = bot.get_guild(config.cget('guild_id'))

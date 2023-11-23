@@ -44,16 +44,15 @@ def get_last_log(event):
 # user functions
 def add_user(user):
     check = db.execute("SELECT UserID FROM users WHERE UserID=" + str(user.id) + ";")
-    if check.fetchone() is not None:
-        return False
-    query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "'False', 'False');"
-    db.execute(query)
+    if check.fetchone() is None:
+        query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "'False', 'False');"
+        db.execute(query)
     check = db.execute("SELECT UserID FROM leaderboard WHERE UserID=" + str(user.id) + ";")
     if check.fetchone() is None:
         query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
         db.execute(query)
     db.commit()
-    return True
+
 
 # used to set Playing, It
 def user_set(user, row):
@@ -87,6 +86,6 @@ def get_leaderboard():
 
 
 # debug functions
-def user_reset():
-    db.execute("DELETE FROM users;")
+def reset(table):
+    db.execute("DELETE FROM " + table + ";")
     db.commit()

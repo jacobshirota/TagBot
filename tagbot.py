@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import asyncio
+import time
 import config
 import logger
 import leaderboard
@@ -43,7 +44,32 @@ async def _help(ctx, cmd=None):
 
 @bot.command()
 async def info(ctx):
-    return
+    reply = "Game is currently "
+    if config.cget('active'):
+        reply += "active.\nThe game has been going on since "
+        reply += time.asctime(time.localtime(config.cget('start_time')))
+        reply += " (" + str(int(time.time())-config.cget('start_time')) + " minutes).\n"
+        reply += "Nobody has been tagged "
+        last_tag = logger.get_last_log('TAG')
+        if last_tag is None:
+            reply += "yet."
+        else:
+            reply += "in " + str(int(time.time())-last_tag) + " minutes."
+    else:
+        reply += "not active."
+        if config.cget('paused'):
+            last_pause = logger.get_last_log('PAUSE')
+            if last_pause is None:
+                ctx.send("Oops, something went wrong.")
+                return
+            reply += "Game has been paused since " + time.asctime(time.localtime(last_pause))
+        else:
+            last_end = logger.get_last_log('END')
+            if last_end is None:
+                reply += "No game has been logged yet."
+            else:
+                reply += "Last game ended on " + time.asctime(time.localtime(last_end)) + "."
+    ctx.send(reply)
 
 
 @bot.command()

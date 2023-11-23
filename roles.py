@@ -4,20 +4,26 @@ import checks
 import logger
 
 
-def get_role(bot, role_name):
+def set_bot(_bot):
+    global bot
+    bot = _bot
+
+
+def get_role(role_name):
+    from checks import RolesFailure
     if config.cget('guild_id') is None:
-        raise checks.RolesFailure('`CONFIG ERROR: You are missing a guild ID.`')
+        raise RolesFailure('`CONFIG ERROR: You are missing a guild ID.`')
     guild = bot.get_guild(config.cget('guild_id'))
     if guild is None:
-        raise checks.RolesFailure('`CONFIG ERROR: Guild ID is incorrect`')
+        raise RolesFailure('`CONFIG ERROR: Guild ID is incorrect`')
     role_id = config.cget(role_name)
     if role_id is None:
-        raise checks.RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
+        raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
     role = discord.utils.get(guild.roles, id=role_id)
     return role
 
 
-def start_roles(bot, it):
+def start_roles(it):
     playing_role = get_role('playing_role')
     not_it_role = get_role('not_it_role')
     it_role = get_role('it_role')
@@ -30,7 +36,7 @@ def start_roles(bot, it):
     logger.user_set(it, 'It')
 
 
-def end_roles(bot):
+def end_roles():
     not_it_role = get_role('not_it_role')
     it_role = get_role('it_role')
     guild = bot.get_guild(config.cget('guild_id'))
@@ -40,3 +46,9 @@ def end_roles(bot):
         if it_role in m.roles:
             m.remove_roles(it_role)
     logger.user_set_all('It', "'False'")
+
+
+def tag(it, not_it):
+    not_it_role = get_role('not_it_role')
+    it_role = get_role('it_role')
+

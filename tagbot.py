@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import asyncio
-import time
 import config
 import logger
 import leaderboard
+import checks
+import roles
 
 intents = discord.Intents.default()
 intents.members = True
@@ -16,6 +17,7 @@ bot = commands.Bot(command_prefix='!', description="TagBot", help_command=None, 
 
 @bot.event
 async def on_ready():
+    roles.set_bot(bot)
     print('Logged in as', bot.user)
 
 

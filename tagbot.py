@@ -91,6 +91,7 @@ async def playing(ctx):
 async def start(ctx):
     config.cset('active', True)
     config.cset('start_time', logger.log('START'))
+    logger.zero_leaderboard()
     await roles.start_roles(ctx.author)
     await ctx.send(roles.get_role('playing_role').mention + "\nGame has started!")
 
@@ -126,6 +127,8 @@ async def resume(ctx):
 @checks.is_it()
 @checks.roles_config()
 async def tag(ctx, *, tagged: discord.Member):
+    it_time = int(time.time()) - logger.get_last_log('TAG')
+    logger.add_leaderboard(ctx.author, it_time)
     logger.log('TAG', tagged)
     await roles.tag(ctx.author, tagged)
     await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
@@ -148,7 +151,8 @@ async def game_error(ctx, error):
 
 @bot.command(name="leaderboard")
 async def _leaderboard(ctx):
-    reply = leaderboard.to_string(logger.get_leaderboard())
+    reply = "Current leaderboard:\n"
+    reply += leaderboard.to_string(logger.get_leaderboard())
     await ctx.send(reply)
 
 

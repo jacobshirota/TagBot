@@ -73,9 +73,10 @@ def user_set(user, row):
 
 def user_check(user, row):
     check = db.execute("SELECT " + row + " FROM users WHERE UserID=" + str(user.id) + ";")
-    if check.fetchone() is None or check.fetchone()[0] is None:
+    cur_val = check.fetchone()
+    if cur_val is None or cur_val[0] is None:
         raise TypeError("Query returned None object")
-    return True if check.fetchone()[0] == "'True'" else False
+    return True if cur_val[0] == "'True'" else False
 
 def user_set_all(row, val):
     db.execute("UPDATE users SET " + row + "=" + val + ";")

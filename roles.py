@@ -22,7 +22,7 @@ def get_role(role_name):
     return role
 
 
-def start_roles(it):
+async def start_roles(it):
     playing_role = get_role('playing_role')
     not_it_role = get_role('not_it_role')
     it_role = get_role('it_role')
@@ -30,20 +30,20 @@ def start_roles(it):
     for m in guild.members:
         if playing_role not in m.roles or m == it:
             continue
-        m.add_roles(not_it_role)
-    it.add_roles(it_role)
+        await m.add_roles(not_it_role)
+    await it.add_roles(it_role)
     logger.user_set(it, 'It')
 
 
-def end_roles():
+async def end_roles():
     not_it_role = get_role('not_it_role')
     it_role = get_role('it_role')
     guild = bot.get_guild(config.cget('guild_id'))
     for m in guild.members:
         if not_it_role in m.roles:
-            m.remove_roles(not_it_role)
+            await m.remove_roles(not_it_role)
         if it_role in m.roles:
-            m.remove_roles(it_role)
+            await m.remove_roles(it_role)
     logger.user_set_all('It', "'False'")
 
 

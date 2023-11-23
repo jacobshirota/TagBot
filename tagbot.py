@@ -145,14 +145,13 @@ async def game_error(ctx, error):
         await ctx.reply("Oops, you can't do that right now!")
     else:
         await ctx.reply("Oops, something went wrong.")
-        if config.cget('debug_mode'):
-            await ctx.send(error)
+    if config.cget('debug_mode'):
+        await ctx.send(error)
 
 
 @bot.command(name="leaderboard")
 async def _leaderboard(ctx):
-    reply = "Current leaderboard:\n"
-    reply += leaderboard.to_string(logger.get_leaderboard())
+    reply = leaderboard.to_string(logger.get_leaderboard())
     await ctx.send(reply)
 
 
@@ -253,6 +252,8 @@ async def toggle_debug(ctx):
 @config_reset.error
 @user_reset.error
 @export.error
+@role.error
+@toggle_debug.error
 async def debug_error(ctx, error):
     if isinstance(error, checks.DebugModeError):
         await ctx.reply(error)
@@ -260,8 +261,8 @@ async def debug_error(ctx, error):
         await ctx.reply("Oops, you can't do that right now!")
     else:
         await ctx.reply("Oops, something went wrong.")
-        if config.cget('debug_mode'):
-            await ctx.send(error)
+    if config.cget('debug_mode'):
+        await ctx.send(error)
 
 
 # Global checks

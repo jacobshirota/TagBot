@@ -48,8 +48,10 @@ def add_user(user):
         return False
     query = "INSERT INTO users VALUES (" + str(user.id) + ", '" + user.mention + "', " + "'False', 'False');"
     db.execute(query)
-    query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
-    db.execute(query)
+    check = db.execute("SELECT UserID FROM leaderboard WHERE UserID=" + str(user.id) + ";")
+    if check.fetchone() is None:
+        query = "INSERT INTO leaderboard VALUES(" + str(user.id) + ", 0);"
+        db.execute(query)
     db.commit()
     return True
 

@@ -54,7 +54,7 @@ async def info(ctx):
         if last_tag is None:
             reply += "yet."
         else:
-            reply += "in " + str(int(time.time())-last_tag) + " minutes."
+            reply += "in " + str(int(time.time())-int(last_tag)) + " minutes."
     else:
         reply += "not active.\n"
         if config.cget('paused'):

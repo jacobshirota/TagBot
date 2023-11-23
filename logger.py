@@ -40,7 +40,7 @@ def get_last_log(event):
     db.commit()
     if timestamp.fetchone() is None:
         return None
-    return int(timestamp.fetchone()[0])
+    return timestamp.fetchone()[0]
 
 
 # user functions

@@ -83,7 +83,7 @@ def user_set_all(row, val):
 
 # leaderboard functions
 def get_leaderboard():
-    check = db.execute("SELECT Mention, TotalTime FROM user, leaderboard WHERE user.UserID=leaderboard.UserID ORDER "
+    check = db.execute("SELECT Mention, TotalTime FROM users, leaderboard WHERE users.UserID=leaderboard.UserID ORDER "
                        "BY TotalTime DESC;")
     return check.fetchall()
 

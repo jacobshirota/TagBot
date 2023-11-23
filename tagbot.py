@@ -46,7 +46,7 @@ async def playing(ctx):
 async def start(ctx):
     config.cset('active', True)
     config.cset('start_time', logger.log('START'))
-    roles.start_roles(ctx.author)
+    await roles.start_roles(ctx.author)
     await ctx.send(roles.get_role('playing_role').mention + "\nGame has started!")
 
 
@@ -55,7 +55,7 @@ async def start(ctx):
 async def end(ctx):
     config.cset('active', False)
     config.cset('end_time', logger.log('END'))
-    roles.end_roles()
+    await roles.end_roles()
     # logger.user_set_all('Playing', 'False')
     await ctx.send(roles.get_role('playing_role').mention + "\nGame has ended!")
 
@@ -154,7 +154,7 @@ async def config_reset(ctx):
 @checks.game_not_paused()
 async def user_reset(ctx):
     logger.user_reset()
-    roles.end_roles()
+    await roles.end_roles()
     playing_role = roles.get_role('playing_role')
     guild = bot.get_guild(config.cget('guild_id'))
     for m in guild.members:

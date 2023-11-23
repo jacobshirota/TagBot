@@ -1,5 +1,5 @@
 def to_string(arg_list):
-    ret_str = ""
+    ret_str = "Current leaderboard:\n"
     for pair in arg_list:
         ret_str += pair[0] + ": " + str(int(pair[1]/60)) + " minutes\n"
     return ret_str

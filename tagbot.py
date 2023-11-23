@@ -151,8 +151,8 @@ async def game_error(ctx, error):
             await ctx.send(error)
 
 
-@bot.command()
-async def leaderboard(ctx):
+@bot.command(name="leaderboard")
+async def _leaderboard(ctx):
     reply = leaderboard.to_string(logger.get_leaderboard())
     await ctx.send(reply)
 

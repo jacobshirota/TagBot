@@ -48,13 +48,13 @@ async def info(ctx):
     if config.cget('active'):
         reply += "active.\nThe game has been going on since "
         reply += time.asctime(time.localtime(config.cget('start_time')))
-        reply += " (" + str(int(time.time())-config.cget('start_time')) + " minutes).\n"
+        reply += " (" + str(int((int(time.time())-config.cget('start_time'))/60)) + " minutes).\n"
         reply += "Nobody has been tagged "
         last_tag = logger.get_last_log('TAG')
         if last_tag is None:
             reply += "yet."
         else:
-            reply += "in " + str(int(time.time())-int(last_tag)) + " minutes."
+            reply += "in " + str(int((int(time.time())-int(last_tag))/60)) + " minutes."
     else:
         reply += "not active.\n"
         if config.cget('paused'):

@@ -83,13 +83,33 @@ def user_set_all(row, val):
 
 
 # leaderboard functions
+
 def get_leaderboard():
-    check = db.execute("SELECT Mention, TotalTime FROM users, leaderboard WHERE users.UserID=leaderboard.UserID ORDER "
-                       "BY TotalTime DESC;")
+    check = db.execute("SELECT Mention, TotalTime FROM users, leaderboard WHERE users.UserID=leaderboard.UserID AND "
+                       "users.Playing = 'True' ORDER BY TotalTime DESC;")
     return check.fetchall()
+
+def add_leaderboard(user, new_time):
+    add_user(str(user.id))
+    check = db.execute("SELECT TotalTime FROM leaderboard WHERE UserID=" + user.id + ";")
+    result = check.fetchone()
+    if result is None or result[0] is None:
+        old_time = 0
+    else:
+        old_time = int(result[0])
+    query = "UPDATE leaderboard SET TotalTime=" + str(old_time + new_time) + " WHERE UserID=" + user.id + ";"
+    db.execute(query)
+    db.commit()
+
+
+def zero_leaderboard():
+    query = "UPDATE leaderboard SET TotalTime=0;"
+    db.execute(query)
+    db.commit()
 
 
 # debug functions
+
 def reset(table):
     db.execute("DELETE FROM " + table + ";")
     db.commit()

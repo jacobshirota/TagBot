@@ -64,11 +64,7 @@ async def info(ctx):
                 return
             reply += "Game has been paused since " + time.asctime(time.localtime(last_pause))
         else:
-            last_end = logger.get_last_log('END')
-            if last_end is None:
-                reply += "No game has been logged yet."
-            else:
-                reply += "Last game ended on " + time.asctime(time.localtime(last_end)) + "."
+            reply += "Last game ended on " + time.asctime(time.localtime(config.cget('end_time'))) + "."
     ctx.send(reply)
 
 

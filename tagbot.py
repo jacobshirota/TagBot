@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import asyncio
-import time
 import config
 import logger
 import leaderboard
+import checks
+import roles
 
 intents = discord.Intents.default()
 intents.members = True
@@ -16,132 +17,23 @@ bot = commands.Bot(command_prefix='!', description="TagBot", help_command=None, 
 
 @bot.event
 async def on_ready():
+    roles.set_bot(bot)
     print('Logged in as', bot.user)
-
-
-# Command Checks
-def game_active():
-    async def predicate(ctx):
-        return config.cget('active')
-    return commands.check(predicate)
-
-
-def game_not_active():
-    # there's probably a better way of doing this
-    async def predicate(ctx):
-        return not config.cget('active')
-    return commands.check(predicate)
-
-
-def game_paused():
-    async def predicate(ctx):
-        return config.cget('paused')
-    return commands.check(predicate)
-
-
-def game_not_paused():
-    async def predicate(ctx):
-        return not config.cget('paused')
-    return commands.check(predicate)
-
-
-def game_not_cooldown():
-    async def predicate(ctx):
-        last_tag = logger.get_last_log('Tag')
-        is_cooldown = (int(time.time()) - last_tag) < config.cget('cooldown')
-        return not is_cooldown
-    return commands.check(predicate)
-
-
-def is_playing():
-    async def predicate(ctx):
-        return logger.user_check(ctx.author, 'Playing')
-    return commands.check(predicate)
-
-
-def is_it():
-    async def predicate(ctx):
-        return logger.user_check(ctx.author, 'It')
-    return commands.check(predicate)
-
-
-class DebugModeError(commands.CheckFailure):
-    pass
-
-def is_debug():
-    async def predicate(ctx):
-        if not config.cget('debug_mode'):
-            raise DebugModeError("Oops, you can't do that without debug mode.")
-        return True
-    return commands.check(predicate)
-
-
-class RolesFailure(commands.CheckFailure):
-    pass
-
-def roles_config():
-    async def predicate(ctx):
-        playing_role = get_role('playing_role') is not None
-        it_role = get_role('it_role') is not None
-        not_it_role = get_role('not_it_role') is not None
-        if not playing_role and it_role and not_it_role:
-            raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
-        return True
-    return commands.check(predicate)
-
-
-# Role manager
-def get_role(role_name):
-    if config.cget('guild_id') is None:
-        raise RolesFailure('`CONFIG ERROR: You are missing a guild ID.`')
-    guild = bot.get_guild(config.cget('guild_id'))
-    if guild is None:
-        raise RolesFailure('`CONFIG ERROR: Guild ID is incorrect`')
-    role_id = config.cget(role_name)
-    if role_id is None:
-        raise RolesFailure('`CONFIG ERROR: You are missing one or more role IDs.`')
-    role = discord.utils.get(guild.roles, id=role_id)
-    return role
-
-
-def start_roles(it):
-    playing_role = get_role('playing_role')
-    not_it_role = get_role('not_it_role')
-    it_role = get_role('it_role')
-    guild = bot.get_guild(config.cget('guild_id'))
-    for m in guild.members:
-        if playing_role not in m.roles or m == it:
-            continue
-        m.add_roles(not_it_role)
-    it.add_roles(it_role)
-    logger.user_set(it, 'It')
-
-
-def end_roles():
-    not_it_role = get_role('not_it_role')
-    it_role = get_role('it_role')
-    guild = bot.get_guild(config.cget('guild_id'))
-    for m in guild.members:
-        if not_it_role in m.roles:
-            m.remove_roles(not_it_role)
-        if it_role in m.roles:
-            m.remove_roles(it_role)
-    logger.user_set_all('It', "'False'")
 
 
 # Config commands
 
 @bot.command()
-@game_not_active()
-@game_not_paused()
-@roles_config()
+@checks.game_not_active()
+@checks.game_not_paused()
+@checks.roles_config()
 async def playing(ctx):
     reply = "Set user " + ctx.author.mention + " to "
     if logger.user_set(ctx.author, 'Playing'):
-        await ctx.author.add_roles(get_role('playing_role'))
+        await ctx.author.add_roles(roles.get_role('playing_role'))
         reply += "playing."
     else:
-        await ctx.author.remove_roles(get_role('playing_role'))
+        await ctx.author.remove_roles(roles.get_role('playing_role'))
         reply += "not playing."
     await ctx.reply(reply)
 
@@ -149,52 +41,52 @@ async def playing(ctx):
 # Tag commands
 
 @bot.command()
-@game_not_active()
-@game_not_paused()
+@checks.game_not_active()
+@checks.game_not_paused()
 async def start(ctx):
     config.cset('active', True)
     config.cset('start_time', logger.log('START'))
-    start_roles(ctx.author)
-    await ctx.send(get_role('playing_role').mention + "\nGame has started!")
+    await roles.start_roles(ctx.author)
+    await ctx.send(roles.get_role('playing_role').mention + "\nGame has started!")
 
 
 @bot.command()
-@game_active()
+@checks.game_active()
 async def end(ctx):
     config.cset('active', False)
     config.cset('end_time', logger.log('END'))
-    end_roles()
+    await roles.end_roles()
     # logger.user_set_all('Playing', 'False')
-    await ctx.send(get_role('playing_role').mention + "\nGame has ended!")
+    await ctx.send(roles.get_role('playing_role').mention + "\nGame has ended!")
 
 
 @bot.command()
-@game_active()
-@game_not_paused()
+@checks.game_active()
+@checks.game_not_paused()
 async def pause(ctx):
     return
 
 
 @bot.command()
-@game_not_active()
-@game_paused()
+@checks.game_not_active()
+@checks.game_paused()
 async def resume(ctx):
     return
 
 
 @bot.command()
-@game_active()
-@game_not_paused()
-@is_playing()
-@is_it()
-@roles_config()
+@checks.game_active()
+@checks.game_not_paused()
+@checks.is_playing()
+@checks.is_it()
+@checks.roles_config()
 async def tag(ctx, *, tagged: discord.Member):
     logger.log('TAG', tagged)
-    await ctx.author.add_roles(get_role('not_it_role'))
-    await ctx.author.remove_roles(get_role('it_role'))
+    await ctx.author.add_roles(roles.get_role('not_it_role'))
+    await ctx.author.remove_roles(roles.get_role('it_role'))
     logger.user_set(ctx.author, 'It')
-    await tagged.add_roles(get_role('it_role'))
-    await tagged.remove_roles(get_role('not_it_role'))
+    await tagged.add_roles(roles.get_role('it_role'))
+    await tagged.remove_roles(roles.get_role('not_it_role'))
     logger.user_set(tagged, 'It')
     await ctx.send("@Playing\n" + tagged.mention + " has been tagged by " + ctx.author.mention + ".")
 
@@ -204,7 +96,7 @@ async def tag(ctx, *, tagged: discord.Member):
 @end.error
 @tag.error
 async def game_error(ctx, error):
-    if isinstance(error, RolesFailure):
+    if isinstance(error, checks.RolesFailure):
         await ctx.reply(error)
     elif isinstance(error, commands.CheckFailure):
         await ctx.reply("Oops, you can't do that right now!")
@@ -224,21 +116,21 @@ async def leaderboard(ctx):
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def server_reset(ctx):
     return
 
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def leaderboard_reset(ctx):
     return
 
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def config_dump(ctx):
     cdump = "config.ini\n"
     with open("config.ini", "r") as cfile:
@@ -248,7 +140,7 @@ async def config_dump(ctx):
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def config_reset(ctx):
     config.reset()
     await ctx.send("```'config.ini' reset.\nWARNING: this command does not reset 'initial_config', "
@@ -257,13 +149,13 @@ async def config_reset(ctx):
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
-@game_not_active()
-@game_not_paused()
+@checks.is_debug()
+@checks.game_not_active()
+@checks.game_not_paused()
 async def user_reset(ctx):
     logger.user_reset()
-    end_roles()
-    playing_role = get_role('playing_role')
+    await roles.end_roles()
+    playing_role = roles.get_role('playing_role')
     guild = bot.get_guild(config.cget('guild_id'))
     for m in guild.members:
         if playing_role in m.roles:
@@ -273,14 +165,14 @@ async def user_reset(ctx):
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def export(ctx):
     ctx.send(file='logs.db')
 
 
 @bot.command()
 @commands.is_owner()
-@is_debug()
+@checks.is_debug()
 async def role(ctx, *, added_role: discord.Role):
     if added_role.name == 'Playing':
         config.cset('playing_role', added_role.id)
@@ -313,7 +205,7 @@ async def toggle_debug(ctx):
 @user_reset.error
 @export.error
 async def debug_error(ctx, error):
-    if isinstance(error, DebugModeError):
+    if isinstance(error, checks.DebugModeError):
         await ctx.reply(error)
     elif isinstance(error, commands.CheckFailure):
         await ctx.reply("Oops, you can't do that right now!")

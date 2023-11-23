@@ -7,6 +7,7 @@ import logger
 import leaderboard
 import checks
 import roles
+import help
 
 intents = discord.Intents.default()
 intents.members = True
@@ -19,6 +20,23 @@ bot = commands.Bot(command_prefix='!', description="TagBot", help_command=None, 
 async def on_ready():
     roles.set_bot(bot)
     print('Logged in as', bot.user)
+
+
+# Help command
+
+@bot.command(name='help')
+async def _help(ctx, cmd=None):
+    if cmd is None:
+        reply = help.show_commands()
+        if config.cget('debug_mode'):
+            reply += help.show_debug()
+        await ctx.send(reply[:-1])
+    else:
+        reply = help.get(cmd)
+        if reply is None:
+            await ctx.send("Oops, I didn't recognize that command.")
+            return
+        await ctx.send(reply[:-1])
 
 
 # Config commands

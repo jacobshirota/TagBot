@@ -47,7 +47,12 @@ async def end_roles():
     logger.user_set_all('It', "'False'")
 
 
-def tag(it, not_it):
+async def tag(it, not_it):
     not_it_role = get_role('not_it_role')
     it_role = get_role('it_role')
-
+    await it.remove_roles(it_role)
+    await it.add_roles(not_it_role)
+    await not_it.remove_roles(not_it_role)
+    await not_it.add_roles(it_role)
+    logger.user_set(it, 'It')
+    logger.user_set(not_it, 'It')

@@ -76,7 +76,7 @@ def user_check(user, row):
     cur_val = check.fetchone()
     if cur_val is None or cur_val[0] is None:
         raise TypeError("Query returned None object")
-    return True if cur_val[0] == "'True'" else False
+    return True if cur_val[0] == "True" else False
 
 def user_set_all(row, val):
     db.execute("UPDATE users SET " + row + "=" + val + ";")

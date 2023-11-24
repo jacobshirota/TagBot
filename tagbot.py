@@ -215,7 +215,7 @@ async def user_reset(ctx):
 @commands.is_owner()
 @checks.is_debug()
 async def export(ctx):
-    ctx.send(file='logs.db')
+    await ctx.send(file='logs.db')
 
 
 @bot.command()

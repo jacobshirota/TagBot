@@ -131,7 +131,7 @@ async def tag(ctx, *, tagged: discord.Member):
     if last_log is None:
         last_time = config.cget('start_time')
     else:
-        last_time = last_log
+        last_time = int(last_log)
     it_time = int(time.time()) - last_time
     logger.add_leaderboard(ctx.author, it_time)
     logger.log('TAG', tagged)

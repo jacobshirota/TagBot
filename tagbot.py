@@ -127,7 +127,12 @@ async def resume(ctx):
 @checks.is_it()
 @checks.roles_config()
 async def tag(ctx, *, tagged: discord.Member):
-    it_time = int(time.time()) - logger.get_last_log('TAG')
+    last_log = logger.get_last_log('TAG')
+    if last_log is None:
+        last_time = config.cget('start_time')
+    else:
+        last_time = last_log
+    it_time = int(time.time()) - last_time
     logger.add_leaderboard(ctx.author, it_time)
     logger.log('TAG', tagged)
     await roles.tag(ctx.author, tagged)

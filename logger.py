@@ -98,7 +98,7 @@ def add_leaderboard(user, new_time):
         old_time = 0
     else:
         old_time = int(result[0])
-    query = "UPDATE leaderboard SET TotalTime=" + str(old_time + new_time) + " WHERE UserID=" + user.id + ";"
+    query = "UPDATE leaderboard SET TotalTime=" + str(old_time + new_time) + " WHERE UserID=" + str(user.id) + ";"
     db.execute(query)
     db.commit()
 

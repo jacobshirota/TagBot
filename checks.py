@@ -5,26 +5,38 @@ import time
 
 def game_active():
     async def predicate(ctx):
-        return config.cget('active')
+        active = config.cget('active')
+        if not active:
+            raise commands.CheckFailure("The game is not active.")
+        return True
     return commands.check(predicate)
 
 
 def game_not_active():
     # there's probably a better way of doing this
     async def predicate(ctx):
-        return not config.cget('active')
+        active = config.cget('active')
+        if active:
+            raise commands.CheckFailure("The game is active.")
+        return True
     return commands.check(predicate)
 
 
 def game_paused():
     async def predicate(ctx):
-        return config.cget('paused')
+        paused = config.cget('paused')
+        if not paused:
+            raise commands.CheckFailure("The game is not paused.")
+        return True
     return commands.check(predicate)
 
 
 def game_not_paused():
     async def predicate(ctx):
-        return not config.cget('paused')
+        paused = config.cget('paused')
+        if paused:
+            raise commands.CheckFailure("The game is paused.")
+        return True
     return commands.check(predicate)
 
 
@@ -32,21 +44,29 @@ def game_not_cooldown():
     async def predicate(ctx):
         last_tag = logger.get_last_log('Tag')
         if last_tag is None:
-            return False
+            return True
         is_cooldown = (int(time.time()) - last_tag) < config.cget('cooldown')
-        return not is_cooldown
+        if is_cooldown:
+            raise commands.CheckFailure("The game is on cooldown.")
+        return True
     return commands.check(predicate)
 
 
 def is_playing():
     async def predicate(ctx):
-        return logger.user_check(ctx.author, 'Playing')
+        playing = logger.user_check(ctx.author, 'Playing')
+        if not playing:
+            raise commands.CheckFailure("You are not playing.")
+        return True
     return commands.check(predicate)
 
 
 def is_it():
     async def predicate(ctx):
-        return logger.user_check(ctx.author, 'It')
+        it = logger.user_check(ctx.author, 'It')
+        if not it:
+            raise commands.CheckFailure("You are not it.")
+        return True
     return commands.check(predicate)
 
 

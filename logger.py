@@ -92,7 +92,7 @@ def get_leaderboard():
 
 def add_leaderboard(user, new_time):
     add_user(str(user.id))
-    check = db.execute("SELECT TotalTime FROM leaderboard WHERE UserID=" + user.id + ";")
+    check = db.execute("SELECT TotalTime FROM leaderboard WHERE UserID=" + str(user.id) + ";")
     result = check.fetchone()
     if result is None or result[0] is None:
         old_time = 0
